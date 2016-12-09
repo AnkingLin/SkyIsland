@@ -89,7 +89,7 @@ namespace EM
 			addFaceToMesh (x, y, z, w, h, d, 5);
 		}
 
-		private void addFaceToMesh(float x, float y, float z, float w, float h, float d, int face)
+		public void addFaceToMesh(float x, float y, float z, float w, float h, float d, int face)
 		{
 			if (face == 0)
 			{
