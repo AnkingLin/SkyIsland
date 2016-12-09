@@ -6,6 +6,8 @@ namespace EM
 {
 	public class Island
 	{
+		//下面这些看命名应该看得懂QAQ
+
 		protected GameObject obj;
 		protected MeshFilter mf;
 		protected MeshRenderer mr;

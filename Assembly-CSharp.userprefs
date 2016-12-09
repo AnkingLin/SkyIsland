@@ -2,14 +2,15 @@
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="Unity.Instance.Unity Editor" />
   <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Island.cs">
     <Files>
-      <File FileName="Assets\Island.cs" Line="24" Column="16" />
-      <File FileName="Assets\Clod.cs" Line="1" Column="1" />
-      <File FileName="Assets\Main.cs" Line="13" Column="37" />
-      <File FileName="Assets\Sky.cs" Line="16" Column="19" />
+      <File FileName="Assets\Island.cs" Line="6" Column="2" />
+      <File FileName="Assets\Clod.cs" Line="10" Column="19" />
+      <File FileName="Assets\Main.cs" Line="16" Column="16" />
+      <File FileName="Assets\Sky.cs" Line="15" Column="18" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
     <BreakpointStore />
   </MonoDevelop.Ide.DebuggingService.Breakpoints>
   <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+  <AuthorInfo Name="QTGC" Email="1056847469@qq.com" Copyright="" Company="" Trademark="" />
 </Properties>

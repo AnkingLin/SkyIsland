@@ -12,6 +12,7 @@ namespace EM
 			this.islands = new List<Island> ();
 		}
 
+		//二分查找岛屿在数组中的位置
 		private int getIslandIndex(int ix,int iz){
 			int first = 0, last = this.islands.Count;
 			while (first <= last) {
