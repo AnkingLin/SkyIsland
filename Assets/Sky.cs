@@ -48,7 +48,7 @@ namespace EM
 
         public Island getIsland(int x, int z)
         {
-            if (this.islands.Count != 0)
+            if (getIslandIndex(x, z)<this.islands.Count)
             {
                 if (this.islands[getIslandIndex(x, z)] != null)
                 {
@@ -70,6 +70,8 @@ namespace EM
                 else
                     last = mid - 1;
             }
+
+            Debug.Log(first);
             return first;
         }
 	}

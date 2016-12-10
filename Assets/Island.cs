@@ -31,14 +31,17 @@ namespace EM
 			this.sz = z * 16;
 
 			this.obj = new GameObject (x + "_" + z);
+            this.obj.transform.position = new Vector3(sx, 0, sz);
+            this.obj.isStatic = true;
 			this.mf = this.obj.AddComponent<MeshFilter> ();
 			this.mr = this.obj.AddComponent<MeshRenderer> ();
+            this.mr.material = Materials.mutou;
 			this.mc = this.obj.AddComponent<MeshCollider> ();
 
 			this.vertices = new List<Vector3> ();
 			this.uv = new List<Vector2> ();
 			this.clods = new Clod[16, 128, 16];
-			this.pos = new Vector3 (x, 0, z);
+			this.pos = new Vector3 (sx, 0, sz);
 		}
 
 		public void setClod(Clod newClod,int x,int y,int z){
