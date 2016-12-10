@@ -18,10 +18,13 @@ namespace EM
 		public List<Vector2> uv;
 		public int[] triangles;
 		public Clod[,,] clods;
+        public Sky sky;
 		public Vector3 pos;
 
-		public Island (int x,int z)
+		public Island (Sky sky, int x,int z)
 		{
+            this.sky = sky;
+
 			this.ix = x;
 			this.iz = z;
 			this.sx = x * 16;
@@ -52,14 +55,35 @@ namespace EM
 			return this.clods [x, y, z];
 		}
 
+        public void buildClod()
+        {
+            for (int x = 0; x < 16; x++)
+            {
+                for (int y = 0; y < 128; y++)
+                {
+                    for (int z = 0; z < 16; z++)
+                    {
+                        if (y < 3)
+                        {
+                            this.clods[x, y, z] = Clod.Stone;
+                        }
+                        else
+                        {
+                            this.clods[x, y, z] = Clod.Air;
+                        }
+                    }
+                }
+            }
+        }
+
 		public void createMesh(){
-			/*for (int x = 0; x < 16; x++) {
+			for (int x = 0; x < 16; x++) {
 				for (int y = 0; y < 128; y++) {
 					for (int z = 0; z < 16; z++) {
-						this.clods [x, y, z].render (this.sx + x, y, this.sz + z);
+                        this.clods[x, y, z].render(this, this.sx + x, y, this.sz + z);
 					}
 				}
-			}*/
+			}
 
 			int num = 0;
 			this.triangles = new int[vertices.Count / 2 * 3];
@@ -80,16 +104,17 @@ namespace EM
 			this.mc.sharedMesh = mf.mesh;
 		}
 
-		public void addBoxToMesh(float x,float y,float z,float w,float h,float d){
-			addFaceToMesh (x, y, z, w, h, d, 0);
-			addFaceToMesh (x, y, z, w, h, d, 1);
-			addFaceToMesh (x, y, z, w, h, d, 2);
-			addFaceToMesh (x, y, z, w, h, d, 3);
-			addFaceToMesh (x, y, z, w, h, d, 4);
-			addFaceToMesh (x, y, z, w, h, d, 5);
-		}
+        public void addBoxToMesh(Vector3 pos, Vector3 size)
+        {
+            addFaceToMesh(pos.x - this.sx, pos.y, pos.z - this.sz, size.x, size.y, size.y, 0);
+            addFaceToMesh(pos.x - this.sx, pos.y, pos.z - this.sz, size.x, size.y, size.y, 1);
+            addFaceToMesh(pos.x - this.sx, pos.y, pos.z - this.sz, size.x, size.y, size.y, 2);
+            addFaceToMesh(pos.x - this.sx, pos.y, pos.z - this.sz, size.x, size.y, size.y, 3);
+            addFaceToMesh(pos.x - this.sx, pos.y, pos.z - this.sz, size.x, size.y, size.y, 4);
+            addFaceToMesh(pos.x - this.sx, pos.y, pos.z - this.sz, size.x, size.y, size.y, 5);
+        }
 
-		public void addFaceToMesh(float x, float y, float z, float w, float h, float d, int face)
+		private void addFaceToMesh(float x, float y, float z, float w, float h, float d, int face)
 		{
 			if (face == 0)
 			{
