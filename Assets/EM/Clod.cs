@@ -10,11 +10,11 @@ namespace EM
         public static Clod Air = new Clod(false);
         public static SolidClod Stone = new SolidClod(true);
 
-        public bool isSoild;
+        public bool isSolid;
 
-        public Clod(bool isSolid)
+        public Clod(bool Solid)
         {
-            this.isSoild = isSoild;
+            this.isSolid = Solid;
         }
 
         public virtual void render(Island island,int x,int y,int z)

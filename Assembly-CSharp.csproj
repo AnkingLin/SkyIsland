@@ -45,12 +45,12 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-     <Compile Include="Assets\Clod.cs" />
-     <Compile Include="Assets\Island.cs" />
+     <Compile Include="Assets\EM\Clod.cs" />
+     <Compile Include="Assets\EM\Island.cs" />
+     <Compile Include="Assets\EM\Materials.cs" />
+     <Compile Include="Assets\EM\Sky.cs" />
+     <Compile Include="Assets\EM\SolidClod.cs" />
      <Compile Include="Assets\Main.cs" />
-     <Compile Include="Assets\Materials.cs" />
-     <Compile Include="Assets\Sky.cs" />
-     <Compile Include="Assets\SolidClod.cs" />
  <Reference Include="UnityEngine.UI">
  <HintPath>C:/Program Files/Unity/Editor/Data/UnityExtensions/Unity/GUISystem/UnityEngine.UI.dll</HintPath>
  </Reference>

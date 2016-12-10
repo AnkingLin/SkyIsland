@@ -10,14 +10,17 @@ public class Main : MonoBehaviour
 	{
         Materials.initMaterials();
         Sky sky = new Sky();
-        for(int x = 0; x < 8; x++)
+        for(int x = -4; x < 4; x++)
         {
-            for(int z = 0; z < 8; z++)
+            for(int z = -4; z < 4; z++)
             {
                 sky.addIsland(x, z);
             }
         }
-
+        sky.getIsland(0, 0).setClod(Clod.Stone, 8, 7, 6);
+        Debug.Log(Clod.Stone.isSolid);
+        Debug.Log(sky.getClod(2,3,4).isSolid);
+        Debug.Log(sky.getClod(5, 3, 4).isSolid);
         //搞两个Island
     }
 	
