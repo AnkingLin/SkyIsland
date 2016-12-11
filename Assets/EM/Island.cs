@@ -32,15 +32,16 @@ namespace EM
 
 			this.obj = new GameObject (x + "_" + z);
             this.obj.transform.position = new Vector3(sx, 0, sz);
+            this.obj.transform.parent = this.sky.thisobj.transform;
             this.obj.isStatic = true;
 			this.mf = this.obj.AddComponent<MeshFilter> ();
 			this.mr = this.obj.AddComponent<MeshRenderer> ();
             this.mr.material = Materials.mutou;
 			this.mc = this.obj.AddComponent<MeshCollider> ();
 
-			this.vertices = new List<Vector3> ();
-			this.uv = new List<Vector2> ();
-			this.clods = new Clod[16, 128, 16];
+            this.vertices = new List<Vector3>();
+            this.uv = new List<Vector2>();
+            this.clods = new Clod[16, 128, 16];
 			this.pos = new Vector3 (sx, 0, sz);
 		}
 
@@ -80,7 +81,10 @@ namespace EM
         }
 
 		public void createMesh(){
-			for (int x = 0; x < 16; x++) {
+            vertices.Clear();
+            uv.Clear();
+
+            for (int x = 0; x < 16; x++) {
 				for (int y = 0; y < 128; y++) {
 					for (int z = 0; z < 16; z++) {
                         this.clods[x, y, z].render(this, this.sx + x, y, this.sz + z);
@@ -110,17 +114,22 @@ namespace EM
         public void addBoxToMesh(Vector3 pos, Vector3 size)
         {
             if (!this.sky.getClod((int)pos.x, (int)pos.y, (int)pos.z + 1).isSolid)
-                addFaceToMesh(pos.x - this.sx, pos.y, pos.z - this.sz, size.x, size.y, size.y, 0);
+                addFaceToMesh(pos.x - this.sx, pos.y, pos.z - this.sz, size.x, size.y, size.z, 0);
+
             if (!this.sky.getClod((int)pos.x, (int)pos.y, (int)pos.z - 1).isSolid)
-                addFaceToMesh(pos.x - this.sx, pos.y, pos.z - this.sz, size.x, size.y, size.y, 1);
+                addFaceToMesh(pos.x - this.sx, pos.y, pos.z - this.sz, size.x, size.y, size.z, 1);
+
             if (!this.sky.getClod((int)pos.x, (int)pos.y + 1, (int)pos.z).isSolid)
-                addFaceToMesh(pos.x - this.sx, pos.y, pos.z - this.sz, size.x, size.y, size.y, 2);
-            if (!this.sky.getClod((int)pos.x, (int)pos.y - 1, (int)pos.z - 1).isSolid)
-                addFaceToMesh(pos.x - this.sx, pos.y, pos.z - this.sz, size.x, size.y, size.y, 3);
+                addFaceToMesh(pos.x - this.sx, pos.y, pos.z - this.sz, size.x, size.y, size.z, 2);
+
+            if (!this.sky.getClod((int)pos.x, (int)pos.y - 1, (int)pos.z).isSolid)
+                addFaceToMesh(pos.x - this.sx, pos.y, pos.z - this.sz, size.x, size.y, size.z, 3);
+
             if (!this.sky.getClod((int)pos.x + 1, (int)pos.y, (int)pos.z).isSolid)
-                addFaceToMesh(pos.x - this.sx, pos.y, pos.z - this.sz, size.x, size.y, size.y, 4);
-            if (!this.sky.getClod((int)pos.x - 1, (int)pos.y, (int)pos.z - 1).isSolid)
-                addFaceToMesh(pos.x - this.sx, pos.y, pos.z - this.sz, size.x, size.y, size.y, 5);
+                addFaceToMesh(pos.x - this.sx, pos.y, pos.z - this.sz, size.x, size.y, size.z, 4);
+
+            if (!this.sky.getClod((int)pos.x - 1, (int)pos.y, (int)pos.z).isSolid)
+                addFaceToMesh(pos.x - this.sx, pos.y, pos.z - this.sz, size.x, size.y, size.z, 5);
         }
 
 		private void addFaceToMesh(float x, float y, float z, float w, float h, float d, int face)

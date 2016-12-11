@@ -7,11 +7,29 @@ namespace EM
 	public class Sky
 	{
 		public List<Island> islands;
+        public GameObject thisobj;
 
 		public Sky ()
 		{
+            this.thisobj = new GameObject("Sky");
 			this.islands = new List<Island> ();
 		}
+
+        public bool setClod(Clod newClod, int x, int y, int z)
+        {
+            int ix = (x) >> 4;
+            int iz = (z) >> 4;
+            int cx = (x) & 15;
+            int cy = (y) & 127;
+            int cz = (z) & 15;
+            Island island = getIsland(ix, iz);
+            if (island != null)
+            {
+                island.setClod(newClod, cx, cy, cz);
+                return true;
+            }
+            return false;
+        }
 
         public Clod getClod(int x,int y,int z)
         {
