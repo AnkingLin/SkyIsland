@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -8,11 +9,11 @@ namespace EM
 	{
 		//下面这些看命名应该看得懂QAQ
 
-		protected GameObject obj;
-		protected MeshFilter mf;
-		protected MeshRenderer mr;
-		protected MeshCollider mc;
-
+		public GameObject obj;
+        public Mesh mesh;
+        public MeshFilter mf;
+        public MeshRenderer mr;
+        public MeshCollider mc;
 		public int ix, iz, sx, sz;
 		public List<Vector3> vertices;
 		public List<Vector2> uv;
@@ -25,38 +26,36 @@ namespace EM
 		{
             this.sky = sky;
 
-			this.ix = x;
-			this.iz = z;
-			this.sx = x * 16;
-			this.sz = z * 16;
+            ix = x;
+            iz = z;
+            sx = x * 16;
+            sz = z * 16;
 
-			this.obj = new GameObject (x + "_" + z);
-            this.obj.transform.position = new Vector3(sx, 0, sz);
-            this.obj.transform.parent = this.sky.thisobj.transform;
-            this.obj.isStatic = true;
-			this.mf = this.obj.AddComponent<MeshFilter> ();
-			this.mr = this.obj.AddComponent<MeshRenderer> ();
-            this.mr.material = Materials.mutou;
-			this.mc = this.obj.AddComponent<MeshCollider> ();
+            obj = new GameObject (x + "_" + z);
+            obj.transform.position = new Vector3(sx, 0, sz);
+            obj.transform.parent = this.sky.thisobj.transform;
+            //this.obj.isStatic = true;
+            mf = obj.AddComponent<MeshFilter> ();
+            mr = obj.AddComponent<MeshRenderer> ();
+            mr.material = Materials.mutou;
+            mc = obj.AddComponent<MeshCollider> ();
 
-            this.vertices = new List<Vector3>();
-            this.uv = new List<Vector2>();
-            this.clods = new Clod[16, 128, 16];
-			this.pos = new Vector3 (sx, 0, sz);
+            clods = new Clod[16, 128, 16];
+            pos = new Vector3 (sx, 0, sz);
 		}
 
 		public void setClod(Clod newClod,int x,int y,int z){
-			if (x < 0 || x >= 16 || y < 0 || y >= 128 || z < 0 || z >= 16)
-				return;
-			this.clods [x, y, z] = newClod;
-
-			createMesh ();
-		}
+            if (x < 0 || x >= 16 || y < 0 || y >= 128 || z < 0 || z >= 16)
+                return;
+            clods[x, y, z] = newClod;
+            
+            createMesh();
+        }
 
 		public Clod getClod(int x,int y,int z){
 			if (x < 0 || x >= 16 || y < 0 || y >= 128 || z < 0 || z >= 16)
 				return Clod.Air;
-			return this.clods [x, y, z];
+			return clods[x, y, z];
 		}
 
         public void buildClod()
@@ -69,11 +68,11 @@ namespace EM
                     {
                         if (y < 5)
                         {
-                            this.clods[x, y, z] = Clod.Stone;
+                            clods[x, y, z] = Clod.Stone;
                         }
                         else
                         {
-                            this.clods[x, y, z] = Clod.Air;
+                            clods[x, y, z] = Clod.Air;
                         }
                     }
                 }
@@ -81,19 +80,21 @@ namespace EM
         }
 
 		public void createMesh(){
-            vertices.Clear();
-            uv.Clear();
+            mesh = new Mesh();
+
+            vertices = new List<Vector3>();
+            uv = new List<Vector2>();
 
             for (int x = 0; x < 16; x++) {
-				for (int y = 0; y < 128; y++) {
+				for (int y = 0; y < 16; y++) {
 					for (int z = 0; z < 16; z++) {
-                        this.clods[x, y, z].render(this, this.sx + x, y, this.sz + z);
+                        clods[x, y, z].render(this, sx + x, y, sz + z);
 					}
 				}
 			}
 
 			int num = 0;
-			this.triangles = new int[vertices.Count / 2 * 3];
+            triangles = new int[vertices.Count / 2 * 3];
 
 			for (int i = 0; i < vertices.Count; i += 4)
 			{
@@ -104,32 +105,38 @@ namespace EM
 				triangles[num++] = i + 2;
 				triangles[num++] = i + 3;
 			}
+            
+            mesh.vertices = vertices.ToArray();
+            mesh.uv = uv.ToArray();
+            mesh.triangles = triangles;
+            mesh.RecalculateBounds();
+            mesh.RecalculateNormals();
+            mf.mesh = mesh;
 
-			this.mf.mesh.vertices = vertices.ToArray();
-			this.mf.mesh.uv = uv.ToArray();
-			this.mf.mesh.triangles = triangles;
-			this.mc.sharedMesh = mf.mesh;
+            mc.sharedMesh = null;
+            mc.sharedMesh = mesh;
+            
 		}
 
         public void addBoxToMesh(Vector3 pos, Vector3 size)
         {
-            if (!this.sky.getClod((int)pos.x, (int)pos.y, (int)pos.z + 1).isSolid)
-                addFaceToMesh(pos.x - this.sx, pos.y, pos.z - this.sz, size.x, size.y, size.z, 0);
+            if (!sky.getClod((int)pos.x, (int)pos.y, (int)pos.z + 1).isSolid)
+                addFaceToMesh(pos.x - sx, pos.y, pos.z - sz, size.x, size.y, size.z, 0);
 
-            if (!this.sky.getClod((int)pos.x, (int)pos.y, (int)pos.z - 1).isSolid)
-                addFaceToMesh(pos.x - this.sx, pos.y, pos.z - this.sz, size.x, size.y, size.z, 1);
+            if (!sky.getClod((int)pos.x, (int)pos.y, (int)pos.z - 1).isSolid)
+                addFaceToMesh(pos.x - sx, pos.y, pos.z - sz, size.x, size.y, size.z, 1);
 
-            if (!this.sky.getClod((int)pos.x, (int)pos.y + 1, (int)pos.z).isSolid)
-                addFaceToMesh(pos.x - this.sx, pos.y, pos.z - this.sz, size.x, size.y, size.z, 2);
+            if (!sky.getClod((int)pos.x, (int)pos.y + 1, (int)pos.z).isSolid)
+                addFaceToMesh(pos.x - sx, pos.y, pos.z - sz, size.x, size.y, size.z, 2);
 
-            if (!this.sky.getClod((int)pos.x, (int)pos.y - 1, (int)pos.z).isSolid)
-                addFaceToMesh(pos.x - this.sx, pos.y, pos.z - this.sz, size.x, size.y, size.z, 3);
+            if (!sky.getClod((int)pos.x, (int)pos.y - 1, (int)pos.z).isSolid)
+                addFaceToMesh(pos.x - sx, pos.y, pos.z - sz, size.x, size.y, size.z, 3);
 
-            if (!this.sky.getClod((int)pos.x + 1, (int)pos.y, (int)pos.z).isSolid)
-                addFaceToMesh(pos.x - this.sx, pos.y, pos.z - this.sz, size.x, size.y, size.z, 4);
+            if (!sky.getClod((int)pos.x + 1, (int)pos.y, (int)pos.z).isSolid)
+                addFaceToMesh(pos.x - sx, pos.y, pos.z - sz, size.x, size.y, size.z, 4);
 
-            if (!this.sky.getClod((int)pos.x - 1, (int)pos.y, (int)pos.z).isSolid)
-                addFaceToMesh(pos.x - this.sx, pos.y, pos.z - this.sz, size.x, size.y, size.z, 5);
+            if (!sky.getClod((int)pos.x - 1, (int)pos.y, (int)pos.z).isSolid)
+                addFaceToMesh(pos.x - sx, pos.y, pos.z - sz, size.x, size.y, size.z, 5);
         }
 
 		private void addFaceToMesh(float x, float y, float z, float w, float h, float d, int face)

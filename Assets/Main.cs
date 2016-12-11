@@ -19,10 +19,6 @@ public class Main : MonoBehaviour
                 sky.addIsland(x, z);
             }
         }
-        sky.getIsland(0, 0).setClod(Clod.Stone, 8, 6, 6);
-        Debug.Log(Clod.Stone.isSolid);
-        Debug.Log(sky.getClod(2,3,4).isSolid);
-        Debug.Log(sky.getClod(5, 3, 4).isSolid);
         //搞两个Island
 
         cc = transform.parent.gameObject.GetComponent<CharacterController>();
@@ -85,7 +81,6 @@ public class Main : MonoBehaviour
                     Vector3 p = hit.point;
                     p -= hit.normal / 4;
                     sky.setClod(Clod.Air, (int)p.x, (int)p.y, (int)p.z);
-                    Debug.Log((int)p.x + ":" + (int)p.y + ":" + (int)p.z);
                 }
 
 
@@ -94,7 +89,6 @@ public class Main : MonoBehaviour
                     Vector3 p = hit.point;
                     p += hit.normal / 4;
                     sky.setClod(Clod.Stone, (int)p.x, (int)p.y, (int)p.z);
-                    Debug.Log((int)p.x + ":" + (int)p.y + ":" + (int)p.z);
                 }
 
             }

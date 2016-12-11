@@ -4,15 +4,15 @@ using UnityEngine;
 
 namespace EM
 {
-	public class Sky
+	public class Sky:MonoBehaviour
 	{
 		public List<Island> islands;
         public GameObject thisobj;
 
 		public Sky ()
 		{
-            this.thisobj = new GameObject("Sky");
-			this.islands = new List<Island> ();
+            thisobj = new GameObject("Sky");
+            islands = new List<Island> ();
 		}
 
         public bool setClod(Clod newClod, int x, int y, int z)
@@ -26,6 +26,16 @@ namespace EM
             if (island != null)
             {
                 island.setClod(newClod, cx, cy, cz);
+
+                if (x == 0)
+                    getIsland(ix - 1, iz).createMesh();
+                else if (z == 0)
+                    getIsland(ix, iz - 1).createMesh();
+                else if (x == 15)
+                    getIsland(ix + 1, iz).createMesh();
+                else if (z == 15)
+                    getIsland(ix, iz + 1).createMesh();
+
                 return true;
             }
             return false;
@@ -46,16 +56,32 @@ namespace EM
             return Clod.Air;
         }
 
+        public void updateClod(int x,int z,bool isThis)
+        {
+            int ix = (x) >> 4;
+            int iz = (z) >> 4;
+
+            getIsland(ix, iz).createMesh();
+
+            if (x > 15 || z > 15 && isThis)
+            {
+                updateClod(x + 1, z, false);
+                updateClod(x - 1, z, false);
+                updateClod(x, z + 1, false);
+                updateClod(x, z - 1, false);
+            }
+        }
+
         public Island addIsland(int x,int z)
         {
             if (getIsland(x, z) == null)
             {
                 Island island = new Island(this, x, z);
-                this.islands.Add(island);
+                islands.Add(island);
                 island.buildClod();
                 island.createMesh();
 
-                this.islands.Sort(delegate(Island a, Island b){
+                islands.Sort(delegate(Island a, Island b){
                     if (a.ix != b.ix)
                         return a.ix.CompareTo(b.ix);
                     else
@@ -69,13 +95,13 @@ namespace EM
 
         public Island getIsland(int x, int z)
         {
-            for (int i = 0; i < this.islands.Count; i++)
+            for (int i = 0; i < islands.Count; i++)
             {
-                int ix = this.islands[i].ix;
-                int iz = this.islands[i].iz;
+                int ix = islands[i].ix;
+                int iz = islands[i].iz;
 
-                if (ix != x || iz != z) continue;
-                return this.islands[i];
+                if (ix == x && iz == z)
+                    return islands[i];
             }
             return null;
         }

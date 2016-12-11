@@ -14,7 +14,7 @@ namespace EM
 
         public Clod(bool Solid)
         {
-            this.isSolid = Solid;
+            isSolid = Solid;
         }
 
         public virtual void render(Island island,int x,int y,int z)
