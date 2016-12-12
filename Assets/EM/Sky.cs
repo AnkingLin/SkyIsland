@@ -29,9 +29,9 @@ namespace EM
 
                 if (x == 0)
                     getIsland(ix - 1, iz).createMesh();
-                else if (z == 0)
-                    getIsland(ix, iz - 1).createMesh();
                 else if (x == 15)
+                    getIsland(ix, iz - 1).createMesh();
+                if (z == 0)
                     getIsland(ix + 1, iz).createMesh();
                 else if (z == 15)
                     getIsland(ix, iz + 1).createMesh();
