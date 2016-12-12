@@ -7,23 +7,28 @@ namespace EM
 {
 	public class Island
 	{
-		//下面这些看命名应该看得懂QAQ
-
+		//各种变量
 		public GameObject obj;
+
         public Mesh mesh;
         public MeshFilter mf;
         public MeshRenderer mr;
         public MeshCollider mc;
+
 		public int ix, iz, sx, sz;
+
 		public List<Vector3> vertices;
 		public List<Vector2> uv;
 		public int[] triangles;
+
 		public Clod[,,] clods;
         public Sky sky;
+        //这个变量毫无用处。。我貌似要用它来做加载动画？
 		public Vector3 pos;
-
+        
 		public Island (Sky sky, int x,int z)
 		{
+            //初始化
             this.sky = sky;
 
             ix = x;
@@ -31,35 +36,55 @@ namespace EM
             sx = x * 16;
             sz = z * 16;
 
+            //搞对象。。别歪
             obj = new GameObject (x + "_" + z);
             obj.transform.position = new Vector3(sx, 0, sz);
             obj.transform.parent = this.sky.thisobj.transform;
+
+            //这个要不要加呢？貌似没什么变化
             //this.obj.isStatic = true;
+
+            //网格网格！！
             mf = obj.AddComponent<MeshFilter> ();
             mr = obj.AddComponent<MeshRenderer> ();
+
+            //设置Material，以后肯定不是这样QAQ
             mr.material = Materials.mutou;
+
+            //加入网格碰撞箱
             mc = obj.AddComponent<MeshCollider> ();
 
+            //初始化泥块
             clods = new Clod[16, 128, 16];
-            pos = new Vector3 (sx, 0, sz);
+
+            //上文提到，毫无用处。。
+            obj.transform.position = pos = new Vector3(sx, 0, sz);
 		}
 
+        //设置泥块
 		public void setClod(Clod newClod,int x,int y,int z){
+            //超出限制当然要踢出！当然这不可能！
             if (x < 0 || x >= 16 || y < 0 || y >= 128 || z < 0 || z >= 16)
                 return;
+
+            //设置。。
             clods[x, y, z] = newClod;
-            
+
+            //更新网格，貌似要删掉？
             createMesh();
         }
 
 		public Clod getClod(int x,int y,int z){
+            //同上
 			if (x < 0 || x >= 16 || y < 0 || y >= 128 || z < 0 || z >= 16)
 				return Clod.Air;
+            //不多说。。
 			return clods[x, y, z];
 		}
 
         public void buildClod()
         {
+            //又是一个小朋友都会的。。
             for (int x = 0; x < 16; x++)
             {
                 for (int y = 0; y < 128; y++)
@@ -80,11 +105,14 @@ namespace EM
         }
 
 		public void createMesh(){
+            //重新new个mesh
             mesh = new Mesh();
 
+            //同上
             vertices = new List<Vector3>();
             uv = new List<Vector2>();
 
+            //添加到顶点数组
             for (int x = 0; x < 16; x++) {
 				for (int y = 0; y < 16; y++) {
 					for (int z = 0; z < 16; z++) {
@@ -93,6 +121,7 @@ namespace EM
 				}
 			}
 
+            //算三角
 			int num = 0;
             triangles = new int[vertices.Count / 2 * 3];
 
@@ -106,6 +135,7 @@ namespace EM
 				triangles[num++] = i + 3;
 			}
             
+            //设置ing
             mesh.vertices = vertices.ToArray();
             mesh.uv = uv.ToArray();
             mesh.triangles = triangles;
@@ -120,6 +150,7 @@ namespace EM
 
         public void addBoxToMesh(Vector3 pos, Vector3 size)
         {
+            //近面剔除。。后来会改的
             if (!sky.getClod((int)pos.x, (int)pos.y, (int)pos.z + 1).isSolid)
                 addFaceToMesh(pos.x - sx, pos.y, pos.z - sz, size.x, size.y, size.z, 0);
 
@@ -141,6 +172,7 @@ namespace EM
 
 		private void addFaceToMesh(float x, float y, float z, float w, float h, float d, int face)
 		{
+            //一大堆懒得缩写代码的东西。。
 			if (face == 0)
 			{
 				uv.Add(new Vector2((x + 0) * 32f / 32f, (y + 0) * 32f / 32f));

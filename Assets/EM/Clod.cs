@@ -7,6 +7,8 @@ namespace EM
 {
     public class Clod
     {
+        //不多说。。
+
         public static Clod Air = new Clod(false);
         public static SolidClod Stone = new SolidClod(true);
 

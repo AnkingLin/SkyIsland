@@ -7,6 +7,8 @@ namespace EM
 {
     public class SolidClod : Clod
     {
+        //不多说。。
+
         public SolidClod(bool isSolid):base(isSolid)
         {
             

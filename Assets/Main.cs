@@ -4,6 +4,8 @@ using EM;
 
 public class Main : MonoBehaviour
 {
+    //一下全是垃圾代码QAQ
+
     CharacterController cc;
     Sky sky;
 
