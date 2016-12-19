@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
+using System;
 
 namespace EM
 {
@@ -16,7 +16,7 @@ namespace EM
 
         public override void render(Island island,int x, int y, int z)
         {
-            island.addBoxToMesh(new UnityEngine.Vector3(x+0, y+0, z+0), new UnityEngine.Vector3(1, 1, 1));
+            island.addBoxToMesh(x, y, z, 1, 1, 1);
         }
     }
 }

@@ -45,9 +45,12 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+     <Compile Include="Assets\Crosshair.cs" />
      <Compile Include="Assets\EM\Clod.cs" />
      <Compile Include="Assets\EM\Island.cs" />
+     <Compile Include="Assets\EM\Ling.cs" />
      <Compile Include="Assets\EM\Materials.cs" />
+     <Compile Include="Assets\EM\Renderer.cs" />
      <Compile Include="Assets\EM\Sky.cs" />
      <Compile Include="Assets\EM\SolidClod.cs" />
      <Compile Include="Assets\Main.cs" />

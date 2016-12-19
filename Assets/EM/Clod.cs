@@ -10,7 +10,9 @@ namespace EM
         //不多说。。
 
         public static Clod Air = new Clod(false);
-        public static SolidClod Stone = new SolidClod(true);
+        public static StoneClod Stone = new StoneClod();
+        public static GrassClod Grass = new GrassClod();
+        public static SoilClod Soil = new SoilClod();
 
         public bool isSolid;
 

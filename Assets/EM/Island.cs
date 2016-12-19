@@ -1,7 +1,6 @@
-﻿using System;
-using System.Collections;
+﻿using UnityEngine;
+using System;
 using System.Collections.Generic;
-using UnityEngine;
 
 namespace EM
 {
@@ -19,7 +18,7 @@ namespace EM
 
 		public List<Vector3> vertices;
 		public List<Vector2> uv;
-		public int[] triangles;
+        public List<int> triangles;
 
 		public Clod[,,] clods;
         public Sky sky;
@@ -49,7 +48,7 @@ namespace EM
             mr = obj.AddComponent<MeshRenderer> ();
 
             //设置Material，以后肯定不是这样QAQ
-            mr.material = Materials.mutou;
+            mr.material = Materials.terrain;
 
             //加入网格碰撞箱
             mc = obj.AddComponent<MeshCollider> ();
@@ -61,26 +60,63 @@ namespace EM
             obj.transform.position = pos = new Vector3(sx, 0, sz);
 		}
 
-        //设置泥块
-		public void setClod(Clod newClod,int x,int y,int z){
-            //超出限制当然要踢出！当然这不可能！
-            if (x < 0 || x >= 16 || y < 0 || y >= 128 || z < 0 || z >= 16)
-                return;
+        public static float CalculateNoiseValue(Vector3 pos, Vector3 offset, float scale)
+        {
 
-            //设置。。
-            clods[x, y, z] = newClod;
+            float noiseX = Mathf.Abs((pos.x + offset.x) * scale);
+            float noiseY = Mathf.Abs((pos.y + offset.y) * scale);
+            float noiseZ = Mathf.Abs((pos.z + offset.z) * scale);
 
-            //更新网格，貌似要删掉？
-            createMesh();
+            return Mathf.Max(0, Noise.Generate(noiseX, noiseY, noiseZ));
+
         }
 
-		public Clod getClod(int x,int y,int z){
-            //同上
-			if (x < 0 || x >= 16 || y < 0 || y >= 128 || z < 0 || z >= 16)
-				return Clod.Air;
-            //不多说。。
-			return clods[x, y, z];
-		}
+        public static Clod GetTheoreticalByte(Vector3 pos)
+        {
+            UnityEngine.Random.seed = 720;
+
+            Vector3 grain0Offset = new Vector3(UnityEngine.Random.value * 10000, UnityEngine.Random.value * 10000, UnityEngine.Random.value * 10000);
+            Vector3 grain1Offset = new Vector3(UnityEngine.Random.value * 10000, UnityEngine.Random.value * 10000, UnityEngine.Random.value * 10000);
+            Vector3 grain2Offset = new Vector3(UnityEngine.Random.value * 10000, UnityEngine.Random.value * 10000, UnityEngine.Random.value * 10000);
+
+            return GetTheoreticalByte(pos, grain0Offset, grain1Offset, grain2Offset);
+
+        }
+
+        public static Clod GetTheoreticalByte(Vector3 pos, Vector3 offset0, Vector3 offset1, Vector3 offset2)
+        {
+
+            float heightBase = 16;
+            float maxHeight = 48;
+            float heightSwing = maxHeight - heightBase;
+
+            Clod clod = Clod.Air;
+
+            float clusterValue = CalculateNoiseValue(pos, offset1, 0.01f);
+            float blobValue = CalculateNoiseValue(pos, offset1, 0.03f);
+            float mountainValue = CalculateNoiseValue(pos, offset0, 0.02f);
+            if ((mountainValue == 0) && (blobValue < 0.72f))
+                clod = Clod.Air;
+            else if (clusterValue > 0.9f)
+                clod = Clod.Grass;
+            else if (clusterValue > 0.5f)
+                clod = Clod.Soil;
+            else if (clusterValue > 0.1f)
+                clod = Clod.Stone;
+
+            mountainValue = Mathf.Sqrt(mountainValue);
+
+            mountainValue *= heightSwing;
+            mountainValue += heightBase;
+
+            mountainValue += (blobValue * 10) - 5f;
+
+
+
+            if (mountainValue >= pos.y)
+                return clod;
+            return Clod.Air;
+        }
 
         public void buildClod()
         {
@@ -91,14 +127,7 @@ namespace EM
                 {
                     for (int z = 0; z < 16; z++)
                     {
-                        if (y < 5)
-                        {
-                            clods[x, y, z] = Clod.Stone;
-                        }
-                        else
-                        {
-                            clods[x, y, z] = Clod.Air;
-                        }
+                        clods[x, y, z] = GetTheoreticalByte(new Vector3(x, y, z) + new Vector3(sx, 0, sz));
                     }
                 }
             }
@@ -111,34 +140,21 @@ namespace EM
             //同上
             vertices = new List<Vector3>();
             uv = new List<Vector2>();
+            triangles = new List<int>();
 
             //添加到顶点数组
             for (int x = 0; x < 16; x++) {
-				for (int y = 0; y < 16; y++) {
+				for (int y = 0; y < 128; y++) {
 					for (int z = 0; z < 16; z++) {
                         clods[x, y, z].render(this, sx + x, y, sz + z);
 					}
 				}
 			}
 
-            //算三角
-			int num = 0;
-            triangles = new int[vertices.Count / 2 * 3];
-
-			for (int i = 0; i < vertices.Count; i += 4)
-			{
-				triangles[num++] = i;
-				triangles[num++] = i + 3;
-				triangles[num++] = i + 1;
-				triangles[num++] = i;
-				triangles[num++] = i + 2;
-				triangles[num++] = i + 3;
-			}
-            
             //设置ing
             mesh.vertices = vertices.ToArray();
             mesh.uv = uv.ToArray();
-            mesh.triangles = triangles;
+            mesh.triangles = triangles.ToArray();
             mesh.RecalculateBounds();
             mesh.RecalculateNormals();
             mf.mesh = mesh;
@@ -148,104 +164,207 @@ namespace EM
             
 		}
 
-        public void addBoxToMesh(Vector3 pos, Vector3 size)
+        private float offsetX = 0f;
+        private float offsetY = 0f;
+
+        public void setOffset(float x,float y)
         {
-            //近面剔除。。后来会改的
-            if (!sky.getClod((int)pos.x, (int)pos.y, (int)pos.z + 1).isSolid)
-                addFaceToMesh(pos.x - sx, pos.y, pos.z - sz, size.x, size.y, size.z, 0);
-
-            if (!sky.getClod((int)pos.x, (int)pos.y, (int)pos.z - 1).isSolid)
-                addFaceToMesh(pos.x - sx, pos.y, pos.z - sz, size.x, size.y, size.z, 1);
-
-            if (!sky.getClod((int)pos.x, (int)pos.y + 1, (int)pos.z).isSolid)
-                addFaceToMesh(pos.x - sx, pos.y, pos.z - sz, size.x, size.y, size.z, 2);
-
-            if (!sky.getClod((int)pos.x, (int)pos.y - 1, (int)pos.z).isSolid)
-                addFaceToMesh(pos.x - sx, pos.y, pos.z - sz, size.x, size.y, size.z, 3);
-
-            if (!sky.getClod((int)pos.x + 1, (int)pos.y, (int)pos.z).isSolid)
-                addFaceToMesh(pos.x - sx, pos.y, pos.z - sz, size.x, size.y, size.z, 4);
-
-            if (!sky.getClod((int)pos.x - 1, (int)pos.y, (int)pos.z).isSolid)
-                addFaceToMesh(pos.x - sx, pos.y, pos.z - sz, size.x, size.y, size.z, 5);
+            offsetX = x;
+            offsetY=y;
         }
 
-		private void addFaceToMesh(float x, float y, float z, float w, float h, float d, int face)
-		{
-            //一大堆懒得缩写代码的东西。。
-			if (face == 0)
-			{
-				uv.Add(new Vector2((x + 0) * 32f / 32f, (y + 0) * 32f / 32f));
-				uv.Add(new Vector2((x + w) * 32f / 32f, (y + 0) * 32f / 32f));
-				uv.Add(new Vector2((x + 0) * 32f / 32f, (y + h) * 32f / 32f));
-				uv.Add(new Vector2((x + w) * 32f / 32f, (y + h) * 32f / 32f));
+        private string texa = "Stone";
+        private string texb = "Stone";
+        private string texc = "Stone";
+        private string texd = "Stone";
+        private string texe = "Stone";
+        private string texf = "Stone";
 
-				vertices.Add(new Vector3(+(w / 2) + x, -(h / 2) + y, +(d / 2) + z));
-				vertices.Add(new Vector3(-(w / 2) + x, -(h / 2) + y, +(d / 2) + z));
-				vertices.Add(new Vector3(+(w / 2) + x, +(h / 2) + y, +(d / 2) + z));
-				vertices.Add(new Vector3(-(w / 2) + x, +(h / 2) + y, +(d / 2) + z));
-			}
-			if (face == 1)
-			{
-				uv.Add(new Vector2((x + w) * 32f / 32f, (y + h) * 32f / 32f));
-				uv.Add(new Vector2((x + w + d) * 32f / 32f, (y + h) * 32f / 32f));
-				uv.Add(new Vector2((x + w) * 32f / 32f, (y + 0) * 32f / 32f));
-				uv.Add(new Vector2((x + w + d) * 32f / 32f, (y + 0) * 32f / 32f));
+        public void setTexture(string tex)
+        {
+            texa = tex;
+            texb = tex;
+            texc = tex;
+            texd = tex;
+            texe = tex;
+            texf = tex;
+        }
 
-				vertices.Add(new Vector3(+(w / 2) + x, +(h / 2) + y, -(d / 2) + z));
-				vertices.Add(new Vector3(-(w / 2) + x, +(h / 2) + y, -(d / 2) + z));
-				vertices.Add(new Vector3(+(w / 2) + x, -(h / 2) + y, -(d / 2) + z));
-				vertices.Add(new Vector3(-(w / 2) + x, -(h / 2) + y, -(d / 2) + z));
-			}
-			if (face == 2)
-			{
-				uv.Add(new Vector2((x + w) * 32f / 32f, (y + h) * 32f / 32f));
-				uv.Add(new Vector2((x + w + d) * 32f / 32f, (y + h) * 32f / 32f));
-				uv.Add(new Vector2((x + w) * 32f / 32f, (y + h + d) * 32f / 32f));
-				uv.Add(new Vector2((x + w + d) * 32f / 32f, (y + h + d) * 32f / 32f));
+        public void setTexture(string tex1,string tex2,string tex3)
+        {
+            texa = tex1;
+            texb = tex1;
+            texc= tex2;
+            texd= tex2;
+            texe = tex3;
+            texf = tex3;
+        }
 
-				vertices.Add(new Vector3(+(w / 2) + x, +(h / 2) + y, +(d / 2) + z));
-				vertices.Add(new Vector3(-(w / 2) + x, +(h / 2) + y, +(d / 2) + z));
-				vertices.Add(new Vector3(+(w / 2) + x, +(h / 2) + y, -(d / 2) + z));
-				vertices.Add(new Vector3(-(w / 2) + x, +(h / 2) + y, -(d / 2) + z));
-			}
-			if (face == 3)
-			{
-				uv.Add(new Vector2((x + w + d) * 32f / 32f, (y + h) * 32f / 32f));
-				uv.Add(new Vector2((x + w + d + w) * 32f / 32f, (y + h) * 32f / 32f));
-				uv.Add(new Vector2((x + w + d) * 32f / 32f, (y + h + d) * 32f / 32f));
-				uv.Add(new Vector2((x + w + d + w) * 32f / 32f, (y + h + d) * 32f / 32f));
+        public void setTexture(string tex1, string tex2, string tex3,string tex4,string tex5,string tex6)
+        {
+            texa = tex1;
+            texb = tex2;
+            texc = tex3;
+            texd = tex4;
+            texe = tex5;
+            texf = tex6;
+        }
 
-				vertices.Add(new Vector3(+(w / 2) + x, -(h / 2) + y, -(d / 2) + z));
-				vertices.Add(new Vector3(-(w / 2) + x, -(h / 2) + y, -(d / 2) + z));
-				vertices.Add(new Vector3(+(w / 2) + x, -(h / 2) + y, +(d / 2) + z));
-				vertices.Add(new Vector3(-(w / 2) + x, -(h / 2) + y, +(d / 2) + z));
-			}
-			if (face == 4)
-			{
-				uv.Add(new Vector2((x + d + w) * 32f / 32f, (y + 0) * 32f / 32f));
-				uv.Add(new Vector2((x + d + w + d) * 32f / 32f, (y + 0) * 32f / 32f));
-				uv.Add(new Vector2((x + d + w) * 32f / 32f, (y + h) * 32f / 32f));
-				uv.Add(new Vector2((x + d + w + d) * 32f / 32f, (y + h) * 32f / 32f));
+        public void addBoxToMesh(float x, float y, float z, float w, float h, float d)
+        {
+            if (sky.getClod((int)x, (int)y, (int)z).isSolid)
+            {
+                if (!sky.getClod((int)x, (int)y, (int)z + 1).isSolid)
+                {
+                    setOffset(Materials.getClodTextureOffsetX(texa), Materials.getClodTextureOffsetY(texa));
+                    addFaceToMesh(x - sx, y, z - sz, w, h, d, 0);
+                }
 
-				vertices.Add(new Vector3(+(w / 2) + x, -(h / 2) + y, -(d / 2) + z));
-				vertices.Add(new Vector3(+(w / 2) + x, -(h / 2) + y, +(d / 2) + z));
-				vertices.Add(new Vector3(+(w / 2) + x, +(h / 2) + y, -(d / 2) + z));
-				vertices.Add(new Vector3(+(w / 2) + x, +(h / 2) + y, +(d / 2) + z));
-			}
-			if (face == 5)
-			{
-				uv.Add(new Vector2((x + d + w + d + w) * 32f / 32f, (y + h) * 32f / 32f));
-				uv.Add(new Vector2((x + d + w + d) * 32f / 32f, (y + h) * 32f / 32f));
-				uv.Add(new Vector2((x + d + w + d + w) * 32f / 32f, (y + 0) * 32f / 32f));
-				uv.Add(new Vector2((x + d + w + d) * 32f / 32f, (y + 0) * 32f / 32f));
+                if (!sky.getClod((int)x, (int)y, (int)z - 1).isSolid)
+                {
+                    setOffset(Materials.getClodTextureOffsetX(texb), Materials.getClodTextureOffsetY(texb));
+                    addFaceToMesh(x - sx, y, z - sz, w, h, d, 1);
+                }
 
-				vertices.Add(new Vector3(-(w / 2) + x, +(h / 2) + y, -(d / 2) + z));
-				vertices.Add(new Vector3(-(w / 2) + x, +(h / 2) + y, +(d / 2) + z));
-				vertices.Add(new Vector3(-(w / 2) + x, -(h / 2) + y, -(d / 2) + z));
-				vertices.Add(new Vector3(-(w / 2) + x, -(h / 2) + y, +(d / 2) + z));
-			}
-		}
-	}
+                if (!sky.getClod((int)x, (int)y + 1, (int)z).isSolid)
+                {
+                    setOffset(Materials.getClodTextureOffsetX(texc), Materials.getClodTextureOffsetY(texc));
+                    addFaceToMesh(x - sx, y, z - sz, w, h, d, 2);
+                }
+
+                if (!sky.getClod((int)x, (int)y - 1, (int)z).isSolid)
+                {
+                    setOffset(Materials.getClodTextureOffsetX(texd), Materials.getClodTextureOffsetY(texd));
+                    addFaceToMesh(x - sx, y, z - sz, w, h, d, 3);
+                }
+
+                if (!sky.getClod((int)x + 1, (int)y, (int)z).isSolid)
+                {
+                    setOffset(Materials.getClodTextureOffsetX(texe), Materials.getClodTextureOffsetY(texe));
+                    addFaceToMesh(x - sx, y, z - sz, w, h, d, 4);
+                }
+
+                if (!sky.getClod((int)x - 1, (int)y, (int)z).isSolid)
+                {
+                    setOffset(Materials.getClodTextureOffsetX(texf), Materials.getClodTextureOffsetY(texf));
+                    addFaceToMesh(x - sx, y, z - sz, w, h, d, 5);
+                }
+            }else
+            {
+                setOffset(Materials.getClodTextureOffsetX(texa), Materials.getClodTextureOffsetY(texa));
+                addFaceToMesh(x - sx, y, z - sz, w, h, d, 0);
+
+                setOffset(Materials.getClodTextureOffsetX(texb), Materials.getClodTextureOffsetY(texb));
+                addFaceToMesh(x - sx, y, z - sz, w, h, d, 1);
+
+                setOffset(Materials.getClodTextureOffsetX(texc), Materials.getClodTextureOffsetY(texc));
+                addFaceToMesh(x - sx, y, z - sz, w, h, d, 2);
+
+                setOffset(Materials.getClodTextureOffsetX(texd), Materials.getClodTextureOffsetY(texd));
+                addFaceToMesh(x - sx, y, z - sz, w, h, d, 3);
+
+                setOffset(Materials.getClodTextureOffsetX(texe), Materials.getClodTextureOffsetY(texe));
+                addFaceToMesh(x - sx, y, z - sz, w, h, d, 4);
+
+                setOffset(Materials.getClodTextureOffsetX(texf), Materials.getClodTextureOffsetY(texf));
+                addFaceToMesh(x - sx, y, z - sz, w, h, d, 5);
+            }
+        }
+
+
+
+        public void addFaceToMesh(float x, float y, float z, float w, float h, float d, int face)
+        {
+            int index = vertices.Count;
+            float a = ((float)Materials.clodWidth / Materials.clodTextureWidth);
+            float b = ((float)Materials.clodHeight / Materials.clodTextureHeight);
+            float i = Materials.clodWidth;
+            float j = Materials.clodHeight;
+            float e = Materials.clodTextureWidth;
+            float f = Materials.clodTextureHeight;
+
+            if (face == 0)
+            {
+                uv.Add(new Vector2(((x + offsetX)), ((y + offsetY))));
+                uv.Add(new Vector2(((x + (a * w) + offsetX)), ((y + offsetY))));
+                uv.Add(new Vector2(((x + offsetX)), ((y + (b * w) + offsetY))));
+                uv.Add(new Vector2(((x + (a * w) + offsetX)), ((y + (b * w) + offsetY))));
+
+                vertices.Add(new Vector3(+(w / 2) + x, -(h / 2) + y, +(d / 2) + z));
+                vertices.Add(new Vector3(-(w / 2) + x, -(h / 2) + y, +(d / 2) + z));
+                vertices.Add(new Vector3(+(w / 2) + x, +(h / 2) + y, +(d / 2) + z));
+                vertices.Add(new Vector3(-(w / 2) + x, +(h / 2) + y, +(d / 2) + z));
+            }
+            if (face == 1)
+            {
+                
+                uv.Add(new Vector2(((x + offsetX)), ((y + (b * w) + offsetY))));
+                uv.Add(new Vector2(((x + (a * w) + offsetX)), ((y + (b * w) + offsetY))));
+                uv.Add(new Vector2(((x + offsetX)), ((y + offsetY))));
+                uv.Add(new Vector2(((x + (a * w) + offsetX)), ((y + offsetY))));
+
+                vertices.Add(new Vector3(+(w / 2) + x, +(h / 2) + y, -(d / 2) + z));
+                vertices.Add(new Vector3(-(w / 2) + x, +(h / 2) + y, -(d / 2) + z));
+                vertices.Add(new Vector3(+(w / 2) + x, -(h / 2) + y, -(d / 2) + z));
+                vertices.Add(new Vector3(-(w / 2) + x, -(h / 2) + y, -(d / 2) + z));
+            }
+            if (face == 2)
+            {
+                uv.Add(new Vector2((x + offsetX), (y + offsetY)));
+                uv.Add(new Vector2((x + (a * w) + offsetX), (y + offsetY)));
+                uv.Add(new Vector2((x + offsetX), (y + (a * d) + offsetY)));
+                uv.Add(new Vector2((x + (a * w) + offsetX), (y + (a * d) + offsetY)));
+
+                vertices.Add(new Vector3(+(w / 2) + x, +(h / 2) + y, +(d / 2) + z));
+                vertices.Add(new Vector3(-(w / 2) + x, +(h / 2) + y, +(d / 2) + z));
+                vertices.Add(new Vector3(+(w / 2) + x, +(h / 2) + y, -(d / 2) + z));
+                vertices.Add(new Vector3(-(w / 2) + x, +(h / 2) + y, -(d / 2) + z));
+            }
+            if (face == 3)
+            {
+                uv.Add(new Vector2((x + offsetX), (y + (a * d) + offsetY)));
+                uv.Add(new Vector2((x + (a * w) + offsetX), (y + (a * d) + offsetY)));
+                uv.Add(new Vector2((x + offsetX), (y + offsetY)));
+                uv.Add(new Vector2((x + (a * w) + offsetX), (y + offsetY)));
+
+                vertices.Add(new Vector3(+(w / 2) + x, -(h / 2) + y, -(d / 2) + z));
+                vertices.Add(new Vector3(-(w / 2) + x, -(h / 2) + y, -(d / 2) + z));
+                vertices.Add(new Vector3(+(w / 2) + x, -(h / 2) + y, +(d / 2) + z));
+                vertices.Add(new Vector3(-(w / 2) + x, -(h / 2) + y, +(d / 2) + z));
+            }
+            if (face == 4)
+            {
+                uv.Add(new Vector2((x + offsetX), (y + offsetY)));
+                uv.Add(new Vector2((x + (a * d) + offsetX), (y + offsetY)));
+                uv.Add(new Vector2((x + offsetX), (y + (a * h) + offsetY)));
+                uv.Add(new Vector2((x + (a * d) + offsetX), (y + (a * h) + offsetY)));
+
+                vertices.Add(new Vector3(+(w / 2) + x, -(h / 2) + y, -(d / 2) + z));
+                vertices.Add(new Vector3(+(w / 2) + x, -(h / 2) + y, +(d / 2) + z));
+                vertices.Add(new Vector3(+(w / 2) + x, +(h / 2) + y, -(d / 2) + z));
+                vertices.Add(new Vector3(+(w / 2) + x, +(h / 2) + y, +(d / 2) + z));
+            }
+            if (face == 5)
+            {
+                uv.Add(new Vector2((x + offsetX), (y + (a * h) + offsetY)));
+                uv.Add(new Vector2((x + (a * d) + offsetX), (y + (a * h) + offsetY)));
+                uv.Add(new Vector2((x + offsetX), (y + offsetY)));
+                uv.Add(new Vector2((x + (a * d) + offsetX), (y + offsetY)));
+
+                vertices.Add(new Vector3(-(w / 2) + x, +(h / 2) + y, -(d / 2) + z));
+                vertices.Add(new Vector3(-(w / 2) + x, +(h / 2) + y, +(d / 2) + z));
+                vertices.Add(new Vector3(-(w / 2) + x, -(h / 2) + y, -(d / 2) + z));
+                vertices.Add(new Vector3(-(w / 2) + x, -(h / 2) + y, +(d / 2) + z));
+            }
+
+            triangles.Add(index + 0);
+            triangles.Add(index + 3);
+            triangles.Add(index + 1);
+            triangles.Add(index + 0);
+            triangles.Add(index + 2);
+            triangles.Add(index + 3);
+
+        }
+    }
 }
 

@@ -31,17 +31,24 @@ namespace EM
             Island island = getIsland(ix, iz);
             if (island != null)
             {
-                //设置泥块
-                island.setClod(newClod, cx, cy, cz);
+                //超出限制当然要踢出！当然这不可能！
+                if (cx < 0 || cx >= 16 || cy < 0 || cy >= 128 || cz < 0 || cz >= 16)
+                    return false;
+
+                //设置。。
+                island.clods[cx, cy, cz] = newClod;
+
+                //更新网格，貌似要删掉？
+                island.createMesh();
 
                 //更新岛屿网格
-                if (x == 0)
+                if (cx == 0)
                     getIsland(ix - 1, iz).createMesh();
-                else if (x == 15)
-                    getIsland(ix, iz - 1).createMesh();
-                if (z == 0)
+                else if (cx == 15)
                     getIsland(ix + 1, iz).createMesh();
-                else if (z == 15)
+                if (cz == 0)
+                    getIsland(ix, iz - 1).createMesh();
+                else if (cz == 15)
                     getIsland(ix, iz + 1).createMesh();
 
                 return true;
@@ -63,8 +70,11 @@ namespace EM
             Island island = getIsland(ix, iz);
             if (island != null)
             {
-                //返回泥块
-                return island.getClod(cx, cy, cz);
+                //同上
+                if (cx < 0 || cx >= 16 || cy < 0 || cy >= 128 || cz < 0 || cz >= 16)
+                    return Clod.Air;
+                //不多说。。
+                return island.clods[cx, cy, cz];
             }
 
             return Clod.Air;
