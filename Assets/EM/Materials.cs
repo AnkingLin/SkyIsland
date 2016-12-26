@@ -13,10 +13,17 @@ namespace EM
         public static int clodWidth = 32;
         public static int clodHeight = 32;
 
+        public static Texture crosshair;
+
         public static void initMaterials()
         {
             terrain = Resources.Load(@"Materials/Terrain") as Material;
             ling = Resources.Load(@"Materials/Ling") as Material;
+        }
+
+        public static void initTextures()
+        {
+            crosshair= Resources.Load(@"crosshairalpha") as Texture;
         }
 
         public static float getClodTextureOffsetX(string textureName)

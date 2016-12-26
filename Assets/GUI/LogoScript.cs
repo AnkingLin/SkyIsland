@@ -15,6 +15,7 @@ public class LogoScript : MonoBehaviour
         time++;
         if (time > 250)
         {
+            
             Application.LoadLevel("Main");
             GameObject.DestroyObject(this.gameObject);
         }
