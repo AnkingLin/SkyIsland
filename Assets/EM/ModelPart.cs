@@ -5,6 +5,7 @@ namespace EM
 {
     public class ModelPart
     {
+        //一大堆看得懂的变量
         public GameObject thisobj;
         public Ling ling;
         public float offsetX;
@@ -18,6 +19,11 @@ namespace EM
         public Mesh mesh;
         public MeshFilter mf;
 
+        /// <summary>
+        /// 创建一个模型块
+        /// </summary>
+        /// <param name="ling">灵指针</param>
+        /// <param name="name">块名字</param>
         public ModelPart(Ling ling, string name)
         {
             thisobj = new GameObject(name);
@@ -37,27 +43,51 @@ namespace EM
             triangles = new List<int>();
         }
 
+        /// <summary>
+        /// 这个有问题。。。
+        /// </summary>
+        /// <param name="x"></param>
+        /// <param name="y"></param>
+        /// <param name="z"></param>
         public void setPos(int x, int y, int z)
         {
             thisobj.transform.position = ling.gameObject.transform.position + new Vector3(x / 32f, y / 32f, z / 32f);
         }
         
+        /// <summary>
+        /// 设置旋转坐标
+        /// </summary>
+        /// <param name="x">X</param>
+        /// <param name="y">Y</param>
+        /// <param name="z">Z</param>
         public void setRotPoint(int x,int y,int z)
         {
             rotPoint = new Vector3(x / 32f, (y / 32f), z / 32f);
         }
 
+        /// <summary>
+        /// 获取旋转坐标
+        /// </summary>
+        /// <returns>旋转坐标</returns>
         public Vector3 getRotPoint()
         {
             return ling.gameObject.transform.position + rotPoint;
         }
 
+        /// <summary>
+        /// 设置材质偏移值
+        /// </summary>
+        /// <param name="x">偏移值X</param>
+        /// <param name="y">偏移值Y</param>
         public void setOffset(int x,int y)
         {
             offsetX = ((float)x / tex.width);
             offsetY = ((float)y / tex.height);
         }
 
+        /// <summary>
+        /// 创建网格
+        /// </summary>
         public void createMesh()
         {
             //重新new个mesh
@@ -72,6 +102,16 @@ namespace EM
             mf.mesh = mesh;
         }
 
+        /// <summary>
+        /// 添加一个盒子到网格
+        /// </summary>
+        /// <param name="x">偏移值X</param>
+        /// <param name="y">偏移值Y</param>
+        /// <param name="z">偏移值Z</param>
+        /// <param name="w">大小W</param>
+        /// <param name="h">大小H</param>
+        /// <param name="d">大小D</param>
+        /// <param name="expand">放大倍数（这是个好东西）</param>
         public void addBoxToMesh(int x, int y, int z, int w, int h, int d, int expand)
         {
             addFaceToMesh((x / 32f), (y / 32f), (z / 32f), (w / 32f), (h / 32f), (d / 32f), 0, expand);
@@ -82,6 +122,17 @@ namespace EM
             addFaceToMesh((x / 32f), (y / 32f), (z / 32f), (w / 32f), (h / 32f), (d / 32f), 5, expand);
         }
 
+        /// <summary>
+        /// 添加一个面到网格
+        /// </summary>
+        /// <param name="x">偏移值X</param>
+        /// <param name="y">偏移值Y</param>
+        /// <param name="z">偏移值Z</param>
+        /// <param name="w">大小W</param>
+        /// <param name="h">大小H</param>
+        /// <param name="d">大小D</param>
+        /// <param name="face">面Index</param>
+        /// <param name="expand">放大倍数（这是个好东西）</param>
         public void addFaceToMesh(float x, float y, float z, float w, float h, float d, float face, int expand)
         {
             int index = vertices.Count;

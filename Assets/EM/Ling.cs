@@ -6,6 +6,7 @@ namespace EM
 {
     public class Ling : MonoBehaviour
     {
+        //因为这个类的构架不确定，所以暂且不打注释（明明是你懒。。。）
         public Sky sky;
         public CharacterController cc;
         public int height;

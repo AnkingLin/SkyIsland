@@ -27,6 +27,8 @@
 //For more information, please refer to <http://unlicense.org/>
 
 
+//全抄的，看不懂QAQ
+
 namespace EM
 {
     /// <summary>

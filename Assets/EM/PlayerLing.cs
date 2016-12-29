@@ -4,6 +4,7 @@ namespace EM
 {
     public class PlayerLing : Ling
     {
+        //一大堆看得懂的变量（构架问题不注释）
         private float rotationY = 0F;
         private bool isJump = false;
         private float jumpY = 0.00f;

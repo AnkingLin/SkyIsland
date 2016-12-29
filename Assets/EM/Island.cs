@@ -14,6 +14,7 @@ namespace EM
         public MeshRenderer mr;
         public MeshCollider mc;
 
+        //依次为岛屿坐标X,Y，天空坐标X,Z
 		public int ix, iz, sx, sz;
 
 		public List<Vector3> vertices;
@@ -25,6 +26,12 @@ namespace EM
         //这个变量毫无用处。。我貌似要用它来做加载动画？
 		public Vector3 pos;
         
+        /// <summary>
+        /// 创建一个岛屿
+        /// </summary>
+        /// <param name="sky">天空指针</param>
+        /// <param name="x">岛屿坐标X</param>
+        /// <param name="z">岛屿坐标Y</param>
 		public Island (Sky sky, int x,int z)
 		{
             //初始化
@@ -60,6 +67,13 @@ namespace EM
             obj.transform.position = pos = new Vector3(sx, 0, sz);
 		}
 
+        /// <summary>
+        /// 我抄的，待我研究一番。。
+        /// </summary>
+        /// <param name="pos">方块坐标（c++表示占空间。。）</param>
+        /// <param name="offset">生成偏移值</param>
+        /// <param name="scale">放大倍数（放大化世界233）</param>
+        /// <returns></returns>
         public static float CalculateNoiseValue(Vector3 pos, Vector3 offset, float scale)
         {
 
@@ -71,6 +85,11 @@ namespace EM
 
         }
 
+        /// <summary>
+        /// 依然抄的。。
+        /// </summary>
+        /// <param name="pos">方块坐标</param>
+        /// <returns></returns>
         public static Clod GetTheoreticalByte(Vector3 pos)
         {
             UnityEngine.Random.seed = 720;
@@ -83,6 +102,14 @@ namespace EM
 
         }
 
+        /// <summary>
+        /// 还是抄的。。
+        /// </summary>
+        /// <param name="pos">依然是方块坐标</param>
+        /// <param name="offset0">偏移量1</param>
+        /// <param name="offset1">偏移量2</param>
+        /// <param name="offset2">偏移量3</param>
+        /// <returns></returns>
         public static Clod GetTheoreticalByte(Vector3 pos, Vector3 offset0, Vector3 offset1, Vector3 offset2)
         {
 
@@ -118,6 +145,9 @@ namespace EM
             return Clod.Air;
         }
 
+        /// <summary>
+        /// 加载泥块
+        /// </summary>
         public void buildClod()
         {
             //又是一个小朋友都会的。。
@@ -133,6 +163,9 @@ namespace EM
             }
         }
 
+        /// <summary>
+        /// 创建网格
+        /// </summary>
 		public void createMesh(){
             //重新new个mesh
             mesh = new Mesh();
@@ -146,7 +179,7 @@ namespace EM
             for (int x = 0; x < 16; x++) {
 				for (int y = 0; y < 128; y++) {
 					for (int z = 0; z < 16; z++) {
-                        clods[x, y, z].render(this, sx + x, y, sz + z);
+                        clods[x, y, z].createMesh(this, sx + x, y, sz + z);
 					}
 				}
 			}
@@ -164,15 +197,24 @@ namespace EM
             
 		}
 
+        //以下代码以后会移动到IslandRenderer去。。
+
+        //材质偏移值
         private float offsetX = 0f;
         private float offsetY = 0f;
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="x"></param>
+        /// <param name="y"></param>
         public void setOffset(float x,float y)
         {
             offsetX = x;
-            offsetY=y;
+            offsetY = y;
         }
 
+        //材质6个面
         private string texa = "Stone";
         private string texb = "Stone";
         private string texc = "Stone";
@@ -180,6 +222,10 @@ namespace EM
         private string texe = "Stone";
         private string texf = "Stone";
 
+        /// <summary>
+        /// 设置材质
+        /// </summary>
+        /// <param name="tex">6个面的材质</param>
         public void setTexture(string tex)
         {
             texa = tex;
@@ -190,6 +236,12 @@ namespace EM
             texf = tex;
         }
 
+        /// <summary>
+        /// 设置材质
+        /// </summary>
+        /// <param name="tex1">前后面材质</param>
+        /// <param name="tex2">上下面材质</param>
+        /// <param name="tex3">右左面材质</param>
         public void setTexture(string tex1,string tex2,string tex3)
         {
             texa = tex1;
@@ -200,6 +252,15 @@ namespace EM
             texf = tex3;
         }
 
+        /// <summary>
+        /// 设置材质
+        /// </summary>
+        /// <param name="tex1">前面材质</param>
+        /// <param name="tex2">后面材质</param>
+        /// <param name="tex3">上面材质</param>
+        /// <param name="tex4">下面材质</param>
+        /// <param name="tex5">右面材质</param>
+        /// <param name="tex6">左面材质</param>
         public void setTexture(string tex1, string tex2, string tex3,string tex4,string tex5,string tex6)
         {
             texa = tex1;
@@ -210,41 +271,50 @@ namespace EM
             texf = tex6;
         }
 
+        /// <summary>
+        /// 添加一个盒子进岛屿的网格（近面剔除）
+        /// </summary>
+        /// <param name="x">偏移X</param>
+        /// <param name="y">偏移Y</param>
+        /// <param name="z">偏移Z</param>
+        /// <param name="w">大小W</param>
+        /// <param name="h">大小H</param>
+        /// <param name="d">大小D</param>
         public void addBoxToMesh(float x, float y, float z, float w, float h, float d)
         {
-            if (sky.getClod((int)x, (int)y, (int)z).isSolid)
+            if (sky.getClod((int)x, (int)y, (int)z).isNormal)
             {
-                if (!sky.getClod((int)x, (int)y, (int)z + 1).isSolid)
+                if (!sky.getClod((int)x, (int)y, (int)z + 1).isNormal)
                 {
                     setOffset(Materials.getClodTextureOffsetX(texa), Materials.getClodTextureOffsetY(texa));
                     addFaceToMesh(x - sx, y, z - sz, w, h, d, 0);
                 }
 
-                if (!sky.getClod((int)x, (int)y, (int)z - 1).isSolid)
+                if (!sky.getClod((int)x, (int)y, (int)z - 1).isNormal)
                 {
                     setOffset(Materials.getClodTextureOffsetX(texb), Materials.getClodTextureOffsetY(texb));
                     addFaceToMesh(x - sx, y, z - sz, w, h, d, 1);
                 }
 
-                if (!sky.getClod((int)x, (int)y + 1, (int)z).isSolid)
+                if (!sky.getClod((int)x, (int)y + 1, (int)z).isNormal)
                 {
                     setOffset(Materials.getClodTextureOffsetX(texc), Materials.getClodTextureOffsetY(texc));
                     addFaceToMesh(x - sx, y, z - sz, w, h, d, 2);
                 }
 
-                if (!sky.getClod((int)x, (int)y - 1, (int)z).isSolid)
+                if (!sky.getClod((int)x, (int)y - 1, (int)z).isNormal)
                 {
                     setOffset(Materials.getClodTextureOffsetX(texd), Materials.getClodTextureOffsetY(texd));
                     addFaceToMesh(x - sx, y, z - sz, w, h, d, 3);
                 }
 
-                if (!sky.getClod((int)x + 1, (int)y, (int)z).isSolid)
+                if (!sky.getClod((int)x + 1, (int)y, (int)z).isNormal)
                 {
                     setOffset(Materials.getClodTextureOffsetX(texe), Materials.getClodTextureOffsetY(texe));
                     addFaceToMesh(x - sx, y, z - sz, w, h, d, 4);
                 }
 
-                if (!sky.getClod((int)x - 1, (int)y, (int)z).isSolid)
+                if (!sky.getClod((int)x - 1, (int)y, (int)z).isNormal)
                 {
                     setOffset(Materials.getClodTextureOffsetX(texf), Materials.getClodTextureOffsetY(texf));
                     addFaceToMesh(x - sx, y, z - sz, w, h, d, 5);
@@ -271,8 +341,18 @@ namespace EM
             }
         }
 
+        //这个不同于我改过的ModelPart，它是居中的
 
-
+        /// <summary>
+        /// 添加一个面进岛屿网格
+        /// </summary>
+        /// <param name="x">偏移X</param>
+        /// <param name="y">偏移Y</param>
+        /// <param name="z">偏移Z</param>
+        /// <param name="w">大小W</param>
+        /// <param name="h">大小H</param>
+        /// <param name="d">大小D</param>
+        /// <param name="face">面Index</param>
         public void addFaceToMesh(float x, float y, float z, float w, float h, float d, int face)
         {
             int index = vertices.Count;

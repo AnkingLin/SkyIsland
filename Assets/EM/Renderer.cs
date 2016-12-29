@@ -8,6 +8,8 @@ namespace EM
 {
     public class Renderer
     {
+        //废弃的Renderer备份（防止改坏了。。。）
+
         public static float offsetX = 0;
         public static float offsetY = 0;
 
