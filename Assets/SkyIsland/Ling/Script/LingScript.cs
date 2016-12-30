@@ -94,8 +94,8 @@ namespace SkyIsland
             // leg2.thisobj.transform.RotateAround(leg2.getRotPoint(), fx, 2.5f);
             //leg1.thisobj.transform.RotateAround(leg1.getRotPoint(), -fx, 2.5f);
 
-            leg1.thisobj.transform.localEulerAngles = new Vector3(Mathf.Clamp(leg1.thisobj.transform.localEulerAngles.x, -50f, 50f), 0f, 0f);
-            leg2.thisobj.transform.localEulerAngles = new Vector3(Mathf.Clamp(leg2.thisobj.transform.localEulerAngles.x, -50f, 50f), 0f, 0f);
+            //leg1.thisobj.transform.localEulerAngles = new Vector3(Mathf.Clamp(leg1.thisobj.transform.localEulerAngles.x, -50f, 50f), 0f, 0f);
+            //leg2.thisobj.transform.localEulerAngles = new Vector3(Mathf.Clamp(leg2.thisobj.transform.localEulerAngles.x, -50f, 50f), 0f, 0f);
 
             //手臂摆动
             rightArmAngles = (int)arm1.thisobj.transform.eulerAngles.x;
@@ -139,14 +139,14 @@ namespace SkyIsland
         private void LeftSwing()
         {
             //判断手臂摆动方向
-            if (leftArmAngles == 150)
-            {
-                leftArmDirection = 2;
-            }
-            else
-                if (leftArmAngles == 210)
+            if (leftArmAngles == 40)
             {
                 leftArmDirection = 1;
+            }
+            else
+                if (leftArmAngles == 320)
+            {
+                leftArmDirection = 2;
             }
             //向前摆
             if (leftArmDirection == 1)

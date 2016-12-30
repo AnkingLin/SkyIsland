@@ -166,7 +166,7 @@ namespace SkyIsland
         {
             lings.Add(ling);
             
-            GameObject lingobj = new GameObject(this.GetType().ToString());
+            GameObject lingobj = new GameObject(ling.GetType().ToString());
             LingScript ls = ling.ls = lingobj.AddComponent(Type.GetType(ling.GetType().ToString() + "Script")) as LingScript;
             ling.sky = this;
             ls.ling = ling;
