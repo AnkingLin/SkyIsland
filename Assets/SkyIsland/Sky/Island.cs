@@ -2,7 +2,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace EM
+namespace SkyIsland
 {
 	public class Island
 	{

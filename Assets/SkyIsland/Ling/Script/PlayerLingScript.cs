@@ -1,31 +1,25 @@
 ﻿using UnityEngine;
 
-namespace EM
+namespace SkyIsland
 {
-    public class PlayerLing : Ling
+    public class PlayerLingScript : LingScript
     {
-        //一大堆看得懂的变量（构架问题不注释）
         private float rotationY = 0F;
         private bool isJump = false;
         private float jumpY = 0.00f;
         private Clod putClod = Clod.Stone;
         private GameObject cameraObj;
-
-        public PlayerLing(Sky sky, Vector3 pos) : base(sky, pos)
-        {
-            
-        }
-
+        
         private void Start()
         {
             gameObject.transform.Translate(Vector3.up * 100);
 
-            height = 52;
+            ling.height = 52;
 
             cc = gameObject.AddComponent<CharacterController>();
             cc.radius = 0.35f;
-            cc.height = (height / 32f);
-            cc.center = Vector3.up * (height / 32 / 2);
+            cc.height = (ling.height / 32f);
+            cc.center = Vector3.up * (ling.height / 32 / 2);
             cc.stepOffset = 0.5f;
 
             cameraObj = GameObject.Find("Main Camera");

@@ -1,7 +1,7 @@
 ﻿using System;
 using UnityEngine;
 
-namespace EM
+namespace SkyIsland
 {
     public class StoneClod : SolidClod
     {

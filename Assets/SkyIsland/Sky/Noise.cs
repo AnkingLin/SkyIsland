@@ -29,7 +29,7 @@
 
 //全抄的，看不懂QAQ
 
-namespace EM
+namespace SkyIsland
 {
     /// <summary>
     /// Implementation of the Perlin simplex noise, an improved Perlin noise algorithm.

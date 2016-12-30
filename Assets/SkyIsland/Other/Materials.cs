@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace EM
+namespace SkyIsland
 {
     public class Materials
     {
