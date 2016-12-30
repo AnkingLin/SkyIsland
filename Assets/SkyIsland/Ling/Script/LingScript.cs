@@ -7,6 +7,7 @@ namespace SkyIsland
         public Sky sky;
         public Ling ling;
         public CharacterController cc;
+        public int height;
 
         private ModelPart head;
         private ModelPart body;
@@ -17,10 +18,12 @@ namespace SkyIsland
 
         private void Start()
         {
+            height = 32;
+
             cc = gameObject.AddComponent<CharacterController>();
             cc.radius = 0.4f;
-            cc.height = (ling.height / 32f);
-            cc.center = Vector3.up * (ling.height / 32 / 2);
+            cc.height = (height / 32f);
+            cc.center = Vector3.up * (height / 32 / 2f);
             cc.stepOffset = 0.5f;
 
             gameObject.AddComponent<MeshRenderer>().material = Materials.ling;
@@ -65,22 +68,7 @@ namespace SkyIsland
             Vector3 fx = Vector3.right;
 
             cc.SimpleMove(Vector3.forward * 5.5f * Time.deltaTime);
-
-            if (leg1.thisobj.transform.localEulerAngles.x > 40f)
-            {
-                fx = Vector3.left;
-            }
-            else
-            {
-                fx = Vector3.right;
-            }
-
-            leg2.thisobj.transform.RotateAround(leg2.getRotPoint(), fx, 2.5f);
-            leg1.thisobj.transform.RotateAround(leg1.getRotPoint(), -fx, 2.5f);
-
-            leg1.thisobj.transform.localEulerAngles = new Vector3(Mathf.Clamp(leg1.thisobj.transform.localEulerAngles.x, -50f, 50f), 0f, 0f);
-            leg2.thisobj.transform.localEulerAngles = new Vector3(Mathf.Clamp(leg2.thisobj.transform.localEulerAngles.x, -50f, 50f), 0f, 0f);
-
+            Debug.Log(arm1.thisobj.transform.localEulerAngles.x + ":" + arm1.thisobj.transform.eulerAngles.x);
             arm1.thisobj.transform.RotateAround(arm1.getRotPoint(), Vector3.right, 2.5f);
             arm2.thisobj.transform.RotateAround(arm2.getRotPoint(), Vector3.left, 2.5f);
         }
