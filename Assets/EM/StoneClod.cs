@@ -10,7 +10,7 @@ namespace EM
 
         }
 
-        public override void render(Island island, int x, int y, int z)
+        public override void createMesh(Island island, int x, int y, int z)
         {
             island.setTexture("Stone");
             island.addBoxToMesh(x, y, z, 1, 1f, 1);
