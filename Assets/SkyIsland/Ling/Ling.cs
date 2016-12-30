@@ -15,7 +15,7 @@ namespace SkyIsland
         {
             this.sky = sky;
             height = 32;
-
+                
             GameObject ling = new GameObject(this.GetType().ToString());
             string classname = GetType().ToString() + "Script";
             ls = ling.AddComponent(Type.GetType(classname)) as LingScript;
