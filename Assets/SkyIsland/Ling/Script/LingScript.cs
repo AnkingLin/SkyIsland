@@ -16,17 +16,14 @@ namespace SkyIsland
         private ModelPart leg1;
         private ModelPart leg2;
 
-        Vector3 fx = Vector3.right;
+        Vector3 armDirection;//手臂摆动方向
+        Vector3 legDirection;//腿摆动方向
 
-        private float armAmplitude = 60;//手臂摆动幅度
-
-        private int rightArmDirection;//右手摆动方向 1向前摆，2向后摆
         private int rightArmAngles;//右手摆动角度
-
-        private int leftArmDirection;//左手摆动方向 1向前摆，2向后摆
         private int leftArmAngles;//左手摆动角度
-
-
+        
+        private int rightLegAngles;//右手摆动角度
+        private int leftLegAngles;//左手摆动角度
 
         private void Start()
         {
@@ -34,7 +31,7 @@ namespace SkyIsland
             cc = gameObject.AddComponent<CharacterController>();
             cc.radius = 0.4f;
             cc.height = (height / 32f);
-            cc.center = Vector3.up * (height / 32 / 2);
+            cc.center = Vector3.up * (height / 32 / 2f);
             cc.stepOffset = 0.5f;
 
             gameObject.AddComponent<MeshRenderer>().material = Materials.ling;
@@ -73,92 +70,47 @@ namespace SkyIsland
             leg2.setRotPoint(-2, 10, 0);
             leg2.createMesh();
 
-            rightArmDirection = 1;
-            leftArmDirection = 2;
+            armDirection = Vector3.right;
+            legDirection = Vector3.left;
         }
 
         private void Update()
         {
+            cc.SimpleMove(Vector3.forward * 5.5f * Time.deltaTime);
 
-            //cc.SimpleMove(Vector3.forward * 5.5f * Time.deltaTime);
+            //腿摆动
+            rightLegAngles = (int)leg1.thisobj.transform.eulerAngles.x;
+            leftLegAngles = (int)leg2.thisobj.transform.eulerAngles.x;
 
-            if (leg1.thisobj.transform.localEulerAngles.x > 40f)
+            if (rightLegAngles == 30)
             {
-                fx = Vector3.left;
+                legDirection = Vector3.left;
             }
             else
+                if (rightLegAngles == 330)
             {
-                fx = Vector3.right;
+                legDirection = Vector3.right;
             }
 
-            // leg2.thisobj.transform.RotateAround(leg2.getRotPoint(), fx, 2.5f);
-            //leg1.thisobj.transform.RotateAround(leg1.getRotPoint(), -fx, 2.5f);
-
-            //leg1.thisobj.transform.localEulerAngles = new Vector3(Mathf.Clamp(leg1.thisobj.transform.localEulerAngles.x, -50f, 50f), 0f, 0f);
-            //leg2.thisobj.transform.localEulerAngles = new Vector3(Mathf.Clamp(leg2.thisobj.transform.localEulerAngles.x, -50f, 50f), 0f, 0f);
-
+            leg2.thisobj.transform.RotateAround(leg2.getRotPoint(), legDirection, -1f);
+            leg1.thisobj.transform.RotateAround(leg1.getRotPoint(), legDirection, 1f);
+            
             //手臂摆动
             rightArmAngles = (int)arm1.thisobj.transform.eulerAngles.x;
-            RightSwing();
-
             leftArmAngles = (int)arm2.thisobj.transform.eulerAngles.x;
-            LeftSwing();
-            print("右手旋转的角度:" + rightArmAngles + "左手旋转的角度：" + leftArmAngles);
-            //arm2.thisobj.transform.RotateAround(arm2.getRotPoint(), Vector3.right, 1f);
-        }
-        /// <summary>
-        /// 右手摆动
-        /// </summary>
-        private void RightSwing()
-        {
-            //判断手臂摆动方向
+
             if (rightArmAngles == 30)
             {
-                rightArmDirection = 2;
+                armDirection = Vector3.left;
             }
             else
                 if (rightArmAngles == 330)
             {
-                rightArmDirection = 1;
+                armDirection = Vector3.right;
             }
-            //向前摆
-            if (rightArmDirection == 1)
-            {
-                arm1.thisobj.transform.RotateAround(arm1.getRotPoint(), Vector3.right, 1f);
-            }
-            //向后摆
-            if (rightArmDirection == 2)
-            {
-                arm1.thisobj.transform.RotateAround(arm1.getRotPoint(), Vector3.left, 1f);
-            }
-        }
 
-        /// <summary>
-        /// 左手摆动
-        /// </summary>
-        private void LeftSwing()
-        {
-            //判断手臂摆动方向
-            if (leftArmAngles == 40)
-            {
-                leftArmDirection = 1;
-            }
-            else
-                if (leftArmAngles == 320)
-            {
-                leftArmDirection = 2;
-            }
-            //向前摆
-            if (leftArmDirection == 1)
-            {
-                arm2.thisobj.transform.RotateAround(arm2.getRotPoint(), Vector3.left, 1f);
-            }
-            //向后摆
-            if (leftArmDirection == 2)
-            {
-                arm2.thisobj.transform.RotateAround(arm2.getRotPoint(), Vector3.right, 1f);
-            }
-            print("方向：" + (leftArmDirection == 1 ? "向前" : "向后"));
+            arm1.thisobj.transform.RotateAround(arm1.getRotPoint(), armDirection, 1f);
+            arm2.thisobj.transform.RotateAround(arm2.getRotPoint(), armDirection, -1f);
         }
     }
 }
