@@ -27,13 +27,13 @@ namespace SkyIsland
         public ModelPart(Ling ling, string name)
         {
             thisobj = new GameObject(name);
-            thisobj.transform.parent = ling.gameObject.gameObject.transform;
-            thisobj.transform.position = ling.gameObject.transform.position;
+            thisobj.transform.parent = ling.ls.gameObject.gameObject.transform;
+            thisobj.transform.position = ling.ls.gameObject.transform.position;
             this.ling = ling;
 
             rotPoint = thisobj.transform.position;
             mf = thisobj.AddComponent<MeshFilter>();
-            thisobj.AddComponent<MeshRenderer>().material = ling.gameObject.GetComponent<MeshRenderer>().material;
+            thisobj.AddComponent<MeshRenderer>().material = ling.ls.gameObject.GetComponent<MeshRenderer>().material;
             tex = thisobj.GetComponent<MeshRenderer>().material.mainTexture;
 
             offsetX = 0;
@@ -51,7 +51,7 @@ namespace SkyIsland
         /// <param name="z"></param>
         public void setPos(int x, int y, int z)
         {
-            thisobj.transform.position = ling.gameObject.transform.position + new Vector3(x / 32f, y / 32f, z / 32f);
+            thisobj.transform.position = ling.ls.gameObject.transform.position + new Vector3(x / 32f, y / 32f, z / 32f);
         }
         
         /// <summary>
@@ -71,7 +71,7 @@ namespace SkyIsland
         /// <returns>旋转坐标</returns>
         public Vector3 getRotPoint()
         {
-            return ling.gameObject.transform.position + rotPoint;
+            return ling.ls.gameObject.transform.position + rotPoint;
         }
 
         /// <summary>

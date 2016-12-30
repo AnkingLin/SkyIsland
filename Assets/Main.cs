@@ -18,7 +18,7 @@ public class Main : MonoBehaviour
                 sky.addIsland(x, z);
             }
         }
-        new PlayerLing(sky, Vector3.zero);
+        sky.addLing(new PlayerLing(),new Vector3(0, 10, 0));
     }
 
     void Update()

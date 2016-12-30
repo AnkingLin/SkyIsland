@@ -8,6 +8,8 @@ namespace SkyIsland
 	{
         //岛屿数组
 		public List<Island> islands;
+        //灵数组
+        public List<Ling> lings;
         //天空的游戏对象
         public GameObject thisobj;
 
@@ -19,6 +21,7 @@ namespace SkyIsland
             //初始化
             thisobj = new GameObject("Sky");
             islands = new List<Island> ();
+            lings = new List<Ling>();
 		}
 
         /// <summary>
@@ -152,6 +155,25 @@ namespace SkyIsland
                     return islands[i];
             }
             return null;
+        }
+
+        /// <summary>
+        /// 添加一个灵
+        /// </summary>
+        /// <param name="pos">坐标</param>
+        /// <returns></returns>
+        public Ling addLing(Ling ling, Vector3 pos)
+        {
+            lings.Add(ling);
+            
+            GameObject lingobj = new GameObject(this.GetType().ToString());
+            LingScript ls = ling.ls = lingobj.AddComponent(Type.GetType(ling.GetType().ToString() + "Script")) as LingScript;
+            ling.sky = this;
+            ls.ling = ling;
+            ls.sky = this;
+            lingobj.transform.position = pos;
+
+            return ling;
         }
 	}
 }

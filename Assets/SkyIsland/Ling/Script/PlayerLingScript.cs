@@ -14,12 +14,12 @@ namespace SkyIsland
         {
             gameObject.transform.Translate(Vector3.up * 100);
 
-            ling.height = 52;
+            height = 52;
 
             cc = gameObject.AddComponent<CharacterController>();
             cc.radius = 0.35f;
-            cc.height = (ling.height / 32f);
-            cc.center = Vector3.up * (ling.height / 32 / 2);
+            cc.height = (height / 32f);
+            cc.center = Vector3.up * (height / 32 / 2f);
             cc.stepOffset = 0.5f;
 
             cameraObj = GameObject.Find("Main Camera");
@@ -113,7 +113,7 @@ namespace SkyIsland
 
             if (Input.GetKeyDown(KeyCode.H))
             {
-                new Ling(sky, gameObject.transform.position + new Vector3(0f, 2f, 0f));
+                sky.addLing(new Ling(), gameObject.transform.position + new Vector3(0f, 2f, 0f));
             }
 
             if (Input.GetKeyDown(KeyCode.F2))
