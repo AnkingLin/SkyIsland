@@ -17,6 +17,8 @@ namespace SkyIsland
         //准星材质（你改个画线的可好？）
         public static Texture crosshair;
 
+        public static Texture blueJellyLingTexture;
+
         /// <summary>
         /// 加载材质
         /// </summary>
@@ -31,7 +33,9 @@ namespace SkyIsland
         /// </summary>
         public static void initTextures()
         {
-            crosshair= Resources.Load(@"crosshairalpha") as Texture;
+            crosshair = Resources.Load(@"crosshairalpha") as Texture;
+
+            blueJellyLingTexture = Resources.Load(@"BlueJellyLing") as Texture;
         }
 
         /// <summary>

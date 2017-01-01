@@ -16,8 +16,8 @@ namespace SkyIsland
         private ModelPart leg1;
         private ModelPart leg2;
 
-        Vector3 armDirection;//手臂摆动方向
-        Vector3 legDirection;//腿摆动方向
+        private Vector3 armDirection;//手臂摆动方向
+        private Vector3 legDirection;//腿摆动方向
 
         private int rightArmAngles;//右手摆动角度
         private int leftArmAngles;//左手摆动角度

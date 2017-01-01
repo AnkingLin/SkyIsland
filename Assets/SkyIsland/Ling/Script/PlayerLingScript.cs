@@ -116,6 +116,11 @@ namespace SkyIsland
                 sky.addLing(new Ling(), gameObject.transform.position + new Vector3(0f, 2f, 0f));
             }
 
+            if (Input.GetKeyDown(KeyCode.J))
+            {
+                sky.addLing(new BlueJellyLing(), gameObject.transform.position + new Vector3(0f, 2f, 0f));
+            }
+
             if (Input.GetKeyDown(KeyCode.F2))
             {
                 transform.parent.Translate(Vector3.up * 100f);
