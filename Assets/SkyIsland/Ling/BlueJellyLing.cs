@@ -3,7 +3,7 @@ namespace SkyIsland
 {
     public class BlueJellyLing : Ling
     {
-        public BlueJellyLing() : base()
+        public BlueJellyLing(Sky sky) : base(sky)
         {
 
         }

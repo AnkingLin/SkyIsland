@@ -11,14 +11,7 @@ public class Main : MonoBehaviour
         Materials.initMaterials();
         Materials.initTextures();
         sky = new Sky();
-        for (int x = -4; x < 4; x++)
-        {
-            for (int z = -4; z < 4; z++)
-            {
-                sky.addIsland(x, z);
-            }
-        }
-        sky.addLing(new PlayerLing(),new Vector3(0, 10, 0));
+        sky.addLing(new PlayerLing(sky),new Vector3(0, 10, 0));
     }
 
     void Update()

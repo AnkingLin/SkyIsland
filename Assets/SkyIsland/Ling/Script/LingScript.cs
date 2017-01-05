@@ -25,13 +25,13 @@ namespace SkyIsland
         private int rightLegAngles;//右手摆动角度
         private int leftLegAngles;//左手摆动角度
 
-        private void Start()
+        void Start()
         {
             height = 32;
             cc = gameObject.AddComponent<CharacterController>();
             cc.radius = 0.4f;
             cc.height = (height / 32f);
-            cc.center = Vector3.up * (height / 32 / 2f);
+            cc.center = Vector3.up * (height / 32f / 2);
             cc.stepOffset = 0.5f;
 
             gameObject.AddComponent<MeshRenderer>().material = Materials.ling;
@@ -74,43 +74,17 @@ namespace SkyIsland
             legDirection = Vector3.left;
         }
 
-        private void Update()
+        void Update()
         {
             cc.SimpleMove(Vector3.forward * 5.5f * Time.deltaTime);
 
             //腿摆动
-            rightLegAngles = (int)leg1.thisobj.transform.eulerAngles.x;
-            leftLegAngles = (int)leg2.thisobj.transform.eulerAngles.x;
+            leg1.RotateX(-1f, 30f, -30f);
+            leg2.RotateX(1f, 30f, -30f);
 
-            if (rightLegAngles == 30)
-            {
-                legDirection = Vector3.left;
-            }
-            else
-                if (rightLegAngles == 330)
-            {
-                legDirection = Vector3.right;
-            }
-
-            leg2.thisobj.transform.RotateAround(leg2.getRotPoint(), legDirection, -1f);
-            leg1.thisobj.transform.RotateAround(leg1.getRotPoint(), legDirection, 1f);
-            
             //手臂摆动
-            rightArmAngles = (int)arm1.thisobj.transform.eulerAngles.x;
-            leftArmAngles = (int)arm2.thisobj.transform.eulerAngles.x;
-
-            if (rightArmAngles == 30)
-            {
-                armDirection = Vector3.left;
-            }
-            else
-                if (rightArmAngles == 330)
-            {
-                armDirection = Vector3.right;
-            }
-
-            arm1.thisobj.transform.RotateAround(arm1.getRotPoint(), armDirection, 1f);
-            arm2.thisobj.transform.RotateAround(arm2.getRotPoint(), armDirection, -1f);
+            arm1.RotateX(1f, 30f, -30f);
+            arm2.RotateX(-1f, 30f, -30f);
         }
     }
 }

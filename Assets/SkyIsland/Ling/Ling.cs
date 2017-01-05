@@ -9,8 +9,9 @@ namespace SkyIsland
         public Sky sky;
         public LingScript ls;
 
-        public Ling()
+        public Ling(Sky sky)
         {
+            this.sky = sky;
         }
 
     }

@@ -10,25 +10,32 @@ namespace SkyIsland
         private Clod putClod = Clod.Stone;
         private GameObject cameraObj;
         
-        private void Start()
+        void Start()
         {
-            gameObject.transform.Translate(Vector3.up * 100);
+            gameObject.transform.Translate(Vector3.up * 10);
 
             height = 52;
 
             cc = gameObject.AddComponent<CharacterController>();
             cc.radius = 0.35f;
             cc.height = (height / 32f);
-            cc.center = Vector3.up * (height / 32 / 2f);
+            cc.center = Vector3.up * (height / 32f / 2);
             cc.stepOffset = 0.5f;
 
             cameraObj = GameObject.Find("Main Camera");
             cameraObj.transform.position = gameObject.transform.position + Vector3.up * 1.5f;
             cameraObj.transform.parent = gameObject.transform;
+
+            PlayerLing _ling = (PlayerLing)ling;
+            _ling.updateIsland();
+
         }
 
-        private void Update()
+
+        void Update()
         {
+            PlayerLing _ling = (PlayerLing)ling;
+
             float rotationX = gameObject.transform.localEulerAngles.y + Input.GetAxis("Mouse X") * 8f;
 
             rotationY += Input.GetAxis("Mouse Y") * 8f;
@@ -113,17 +120,23 @@ namespace SkyIsland
 
             if (Input.GetKeyDown(KeyCode.H))
             {
-                sky.addLing(new Ling(), gameObject.transform.position + new Vector3(0f, 2f, 0f));
+                sky.addLing(new Ling(sky), gameObject.transform.position + new Vector3(0f, 2f, 0f));
             }
 
             if (Input.GetKeyDown(KeyCode.J))
             {
-                sky.addLing(new BlueJellyLing(), gameObject.transform.position + new Vector3(0f, 2f, 0f));
+                sky.addLing(new BlueJellyLing(sky), gameObject.transform.position + new Vector3(0f, 2f, 0f));
             }
 
             if (Input.GetKeyDown(KeyCode.F2))
             {
                 transform.parent.Translate(Vector3.up * 100f);
+            }
+
+            if (_ling.ix != (int)gameObject.transform.position.x >> 4 ||
+               _ling.iz != (int)gameObject.transform.position.z >> 4)
+            {
+                _ling.updateIsland();
             }
         }
 

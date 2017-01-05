@@ -19,6 +19,10 @@ namespace SkyIsland
         public Mesh mesh;
         public MeshFilter mf;
 
+        private Vector3 rotDirX = Vector3.right;
+        private Vector3 rotDirY = Vector3.up;
+        private Vector3 rotDirZ = Vector3.forward;
+
         /// <summary>
         /// 创建一个模型块
         /// </summary>
@@ -41,6 +45,63 @@ namespace SkyIsland
             vertices = new List<Vector3>();
             uv = new List<Vector2>();
             triangles = new List<int>();
+        }
+
+        /// <summary>
+        /// 旋转X轴
+        /// </summary>
+        /// <param name="angle">旋转角度</param>
+        /// <param name="max">最大角度</param>
+        /// <param name="min">最小角度</param>
+        public void RotateX(float angle, float max, float min)
+        {
+            if (max >= 0 && (int)thisobj.transform.eulerAngles.x == max ||
+                min < 0 && (int)thisobj.transform.eulerAngles.x == (360 + min) ||
+                max < 0 && (int)thisobj.transform.eulerAngles.x == (360 + max) ||
+                min >= 0 && (int)thisobj.transform.eulerAngles.x == (360 - min))
+            {
+                rotDirX = -rotDirX;
+            }
+
+            thisobj.transform.RotateAround(getRotPoint(), rotDirX, angle);
+        }
+
+        /// <summary>
+        /// 旋转Y轴
+        /// </summary>
+        /// <param name="angle">旋转角度</param>
+        /// <param name="max">最大角度</param>
+        /// <param name="min">最小角度</param>
+        public void RotateY(float angle, float max, float min)
+        {
+            if (max >= 0 && (int)thisobj.transform.eulerAngles.y == max ||
+                min < 0 && (int)thisobj.transform.eulerAngles.y == (360 + min) ||
+                max < 0 && (int)thisobj.transform.eulerAngles.y == (360 + max) ||
+                min >= 0 && (int)thisobj.transform.eulerAngles.y == (360 - min))
+            {
+                rotDirY = -rotDirY;
+            }
+
+            thisobj.transform.RotateAround(getRotPoint(), rotDirY, angle);
+        }
+
+        /// <summary>
+        /// 旋转Z轴
+        /// </summary>
+        /// <param name="angle">旋转角度</param>
+        /// <param name="max">最大角度</param>
+        /// <param name="min">最小角度</param>
+        public void RotateZ(float angle, float max, float min)
+        {
+            if (max >= 0 && (int)thisobj.transform.eulerAngles.z == max ||
+                min < 0 && (int)thisobj.transform.eulerAngles.z == (360 + min) ||
+                max < 0 && (int)thisobj.transform.eulerAngles.z == (360 + max) ||
+                min >= 0 && (int)thisobj.transform.eulerAngles.z == (360 - min))
+            {
+                rotDirZ = -rotDirZ;
+            }
+
+            thisobj.transform.RotateAround(getRotPoint(), rotDirZ, angle);
         }
 
         /// <summary>
